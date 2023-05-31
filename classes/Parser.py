@@ -1,13 +1,13 @@
 import os
-
+import pandas as pd
 class Parser():
     def __init__(self) -> None:
         pass
     
-    def _get_level(line):
+    def _get_level(self,line):
         return line.count('    ')
     
-    def _look_for_assign(line:str):
+    def _look_for_assign(self,line:str):
         if '=' in  line:
             splits = line.split('=')
             splits[0] = splits[0].replace(' ','')
@@ -15,7 +15,7 @@ class Parser():
         else:
             return False, 0
     
-    def _split_by_operators(line):
+    def _split_by_operators(self,line):
         operators = ['-','+','*','/']
         for operator in operators:
             line = line.replace(operator,'___TEMPORARY_SPLIT___')
@@ -53,6 +53,10 @@ class Parser():
             if arguments[0] == '':
                 arguments = None
             return 'func',name,arguments
+        elif 'return' in line:
+            line = line.replace('return', '')
+            arguments = self._split_by_operators(line)
+            return 'return',None,arguments
         return None,None,None
     
     def get_data(self,lines):
@@ -67,17 +71,41 @@ class Parser():
             row['line_text'] = line
             assign_flag,ass_res = self._look_for_assign(line)
             if assign_flag:
-                row["resoult"] = ass_res[0]
+                row["result"] = ass_res[0]
                 line = ass_res[1]
             kind,name,arguments = self._get_function(line)
             row['kind'] = kind
-            row['name'] = name
+            if kind == 'for':
+                row['result'] = name
+                row['name'] = None
+            else:
+                row['name'] = name
             if kind is None:
                 arguments = self._split_by_operators(line)
             row['arguments'] = arguments
             data[i] = row
             #print (split_by_operators(line), data['original_text'])
             #split_by_operators(line)
+        return data
+    
+    def parse_functions(self,data):
+        last_f_name = {}
+        last = ['main']
+        for i,row in data.iterrows():
+            #print(row['name'],row['level_num'],last)
+            
+            if row.kind == 'def' or row.kind == 'class':
+                last.append(row['name'])
+                #print('tutaj',row['name'])
+            if row['level_num'] == 0:
+                last_f_name[i] = 'main'
+            else:
+                #print('tutaj')
+                last_f_name[i] = last[-1]
+                
+            if row['kind'] == 'return':
+                last.pop()
+        data['functions'] = pd.Series(last_f_name)
         return data
     
     def build_tree(path_to_script:str):
