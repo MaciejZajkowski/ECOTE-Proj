@@ -94,18 +94,31 @@ class Parser():
         for i,row in data.iterrows():
             #print(row['name'],row['level_num'],last)
             
-            if row.kind == 'def' or row.kind == 'class':
-                last.append(row['name'])
-                #print('tutaj',row['name'])
             if row['level_num'] == 0:
                 last_f_name[i] = 'main'
             else:
                 #print('tutaj')
-                last_f_name[i] = last[-1]
+                temp = ''
+                for str in last:
+                   temp = temp + '.' + str 
+                last_f_name[i] = temp[1:]
+                
+            if row.kind == 'def' or row.kind == 'class':
+                last.append(row['name'])
+                #print('tutaj',row['name'])
+            
                 
             if row['kind'] == 'return':
                 last.pop()
+        
+        def change(str):
+            if str is not None:
+                return str.replace(' ','')
+            else:
+                return None
         data['functions'] = pd.Series(last_f_name)
+        data['functions'] = data['functions'].apply( lambda x: change(x))
+        data['name'] = data['name'].apply( lambda x: change(x))
         return data
     
     def build_tree(path_to_script:str):
