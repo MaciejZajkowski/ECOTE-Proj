@@ -16,7 +16,7 @@ class Parser():
             return False, 0
     
     def _split_by_operators(self,line):
-        operators = ['-','+','*','/']
+        operators = ['-','+','*','/','%','==']
         for operator in operators:
             line = line.replace(operator,'___TEMPORARY_SPLIT___')
         line = line.replace(' ','')
@@ -53,6 +53,10 @@ class Parser():
             if arguments[0] == '':
                 arguments = None
             return 'func',name,arguments
+        elif 'if' in line:
+            arguments = line[line.find("(")+1:line.find(")")]
+            arguments = self._split_by_operators(arguments)
+            return 'if',None,arguments
         elif 'return' in line:
             line = line.replace('return', '')
             arguments = self._split_by_operators(line)
