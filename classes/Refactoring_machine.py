@@ -50,10 +50,11 @@ class Refactoring_machine():
         
         if name not in data['name'].values:
             return False,"Non Existing name"
+
         if len([function for function in data.functions.to_list() if name_path in function]) == 0:
+            print(data.functions.to_list())
             return False, "Non Existing name_path"
         data = self.changer.rename_function(data,name_path,name,final_name)
-        
         return self._save_data(data,save_path)
         
     def extract_function(self,file_path,save_path,start_line,end_line,name = 'my_new_function'):
@@ -65,7 +66,7 @@ class Refactoring_machine():
             lines = f.readlines()
         
         data =  pd.DataFrame(self.parser.get_data(lines)).T
-        data = Parser.parse_functions(data)
+        data = self.parser.parse_functions(data)
         
         if end_line < 0 or start_line < 0:
             return False, 'cannot have negative parameters'

@@ -57,6 +57,8 @@ class Parser():
             arguments = line[line.find("(")+1:line.find(")")]
             arguments = self._split_by_operators(arguments)
             return 'if',None,arguments
+        elif 'pass' in line:
+            return 'pass',None,None
         elif 'return' in line:
             line = line.replace('return', '')
             arguments = self._split_by_operators(line)
@@ -99,21 +101,26 @@ class Parser():
             #print(row['name'],row['level_num'],last)
             
             if row['level_num'] == 0:
+               # print(f'tutaj0{i}',last)
+                last = ['main']
                 last_f_name[i] = 'main'
             else:
                 #print('tutaj')
                 temp = ''
+               # print(f'tutaj2{i}',last)
                 for str in last:
                    temp = temp + '.' + str 
                 last_f_name[i] = temp[1:]
                 
             if row.kind == 'def' or row.kind == 'class':
                 last.append(row['name'])
-                #print('tutaj',row['name'])
+                #print(f'tutaj{i}',row['name'])
             
                 
-            if row['kind'] == 'return':
-                last.pop()
+            if row['kind'] == 'return' or row['kind'] == 'pass':
+               # print(f'tutaj3{i}',last)
+                if len(last) != 1:
+                    last.pop()
         
         def change(str):
             if str is not None:
@@ -124,12 +131,5 @@ class Parser():
         data['functions'] = data['functions'].apply( lambda x: change(x))
         data['name'] = data['name'].apply( lambda x: change(x))
         return data
-    
-    def build_tree(path_to_script:str):
-        if not os.path.exists(path_to_script):
-            return False,"Path doesn not exist"
-        if not path_to_script.split('.')[-1] == 'py':
-            return False, "It need to be python script"
-        with open('../test_data/case1.py') as f:
-            lines = f.readlines()
+
              
