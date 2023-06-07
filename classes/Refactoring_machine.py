@@ -38,7 +38,7 @@ class Refactoring_machine():
         
         
         
-    def change_name(self,file_path,save_path,name_path,name,final_name):
+    def change_name(self,file_path,save_path,name_path,name,final_name,occurance = 1):
         if not os.path.exists(file_path):
             return False,"File Path does not exist"
         if not file_path.split('.')[-1] == 'py':
@@ -52,12 +52,14 @@ class Refactoring_machine():
             return False,"Non Existing name"
 
         if len([function for function in data.functions.to_list() if name_path in function]) == 0:
-            print(data.functions.to_list())
             return False, "Non Existing name_path"
-        data = self.changer.rename_function(data,name_path,name,final_name)
+        if len(data.loc[(data['name'] == name) & (data.kind =='def') & (data.functions == name_path)]) < occurance or occurance <= 0:
+            return False, "Not enaugth occurances / wrong occurnace number"
+        data = self.changer.rename_function(data,name_path,name,final_name,occurance -1)
         return self._save_data(data,save_path)
         
     def extract_function(self,file_path,save_path,start_line,end_line,name = 'my_new_function'):
+        start_line,end_line = start_line-1,end_line-1
         if not os.path.exists(file_path):
             return False,"Path does not exist"
         if not file_path.split('.')[-1] == 'py':
@@ -68,10 +70,14 @@ class Refactoring_machine():
         data =  pd.DataFrame(self.parser.get_data(lines)).T
         data = self.parser.parse_functions(data)
         
-        if end_line < 0 or start_line < 0:
-            return False, 'cannot have negative parameters'
         if end_line < start_line:
-            return False, "end line beafore start line"
+            end_line,start_line = start_line,end_line
+        
+        if end_line < 0 or start_line < 0:
+            return False, 'cannot have non positive parameters'
+
+        if end_line > len(data):
+            return False, "end line exceedes line numbers"
         if data.iloc[start_line].level_num != data.iloc[end_line].level_num:
             return False, "cannot extract function"
         

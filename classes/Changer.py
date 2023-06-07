@@ -7,8 +7,10 @@ class Changer():
     def take_arguments_from_box(self,data,box):
         arg = []
         for i in range(box[0],box[1]):
-            n_args = [ self.find_argument(data,x,i,data.iloc[i].functions) for x in data.iloc[i].arguments if not x.isnumeric() and "'" not in x and '"' not in x]
+            n_args = [ self.find_argument2(data,x,i,data.iloc[i].functions) for x in data.iloc[i].arguments if not x.isnumeric() and "'" not in x and '"' not in x if x is not None]
             arg = arg + n_args
+        arg = [x for x in arg if x is not None]
+        arg = pd.Series(arg).unique().tolist()
         return arg
 
     def take_argument_from_box(self,data,box):
@@ -27,13 +29,12 @@ class Changer():
         #if len(potential_lines) == 0:
         
     def find_argument2(self,data,argument,line_num, function):
-        print(line_num)
         _ = data.loc[(data.result == argument )& (data.functions == function)]
         potential_lines = [x for x in _.index.to_list() if x < line_num]
         potential_lines.sort()
         if len(potential_lines) == 0:
             return None
-        else: potential_lines[-1]
+        else: return potential_lines[-1]
     
     def take_application_index(self,function,data):
         original_id  = function.name
@@ -94,15 +95,15 @@ class Changer():
     def take_prerequesits_from_box(self,data,box):
         list_of_lines = data.loc[data.functions == data.iloc[box[1]].functions].index.to_list()
         list_of_lines = [x for x in list_of_lines if x > box[1]]
-        print(list_of_lines)
         prereq = []
         for i in list_of_lines:
             f = data.iloc[i].functions
-            for arg in data.iloc[i].arguments:
-                if not arg.isnumeric() and "'" not in arg and '"' not in arg:
-                    _ = self.find_argument(data,arg,i,f)
-                    if _ is not None:
-                        prereq = prereq + [_]
+            if data.iloc[i].arguments is not None:
+                for arg in data.iloc[i].arguments:
+                    if not arg.isnumeric() and "'" not in arg and '"' not in arg:
+                        _ = self.find_argument2(data,arg,i,f)
+                        if _ is not None:
+                            prereq = prereq + [_]
                         
         
         prereq = pd.unique(prereq).tolist()
@@ -113,10 +114,9 @@ class Changer():
         if data.iloc[start_line].level_num != data.iloc[end_line + 1].level_num or data.iloc[start_line].functions != data.iloc[end_line + 1].functions:
             return False
         returns = self.take_prerequesits_from_box(data,(start_line,end_line))
-        #print(returns)
         arguments = self.take_arguments_from_box(data,(start_line,end_line))
-        if arguments[0] is not None:
-            print(arguments)
+        replace = "'"
+        if len(arguments) != 0:
             arguments = data.iloc[arguments].result.to_list()
             def_string = f"def {name}({str(arguments)[1:-1].replace(replace,'')}):"
             func_str = f"{name}({str(arguments)[1:-1].replace(replace,'')})"
@@ -126,7 +126,7 @@ class Changer():
         returns = data.iloc[returns].result.to_list()
         if len(returns) == 0:
             pass
-        replace = "'"
+        
         
         start_index = data.loc[data.functions == data.iloc[start_line].functions].index.to_list()[0]
         
@@ -153,7 +153,7 @@ class Changer():
         my_function = pd.DataFrame(fun).T
         my_function.columns=['line_text','level_num']
         
-        po = data.loc[data.index >  end_line-1][['line_text','level_num']]
+        po = data.loc[data.index >  end_line][['line_text','level_num']]
         przed = data.loc[data.index <  start_line][['line_text','level_num']]
             
     
