@@ -26,13 +26,13 @@ a = func2(9)
 t = a *3
 gaba = a+4
 
-def func2(a):
+def my_new_func(a):
         a = a*4
         return a  
    
 o = func1(0,0)
 a =4 + d + e
-a = func2(9)
+a = my_new_func(9)
 t = a *3
 gaba = a+4 
 b = 0

@@ -69,7 +69,9 @@ class Refactoring_machine():
         
         data =  pd.DataFrame(self.parser.get_data(lines)).T
         data = self.parser.parse_functions(data)
-        
+
+        if name in data['name'].tolist():
+            return False, 'function with this name already exists in program'
         if end_line < start_line:
             end_line,start_line = start_line,end_line
         

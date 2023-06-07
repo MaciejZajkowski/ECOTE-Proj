@@ -18,12 +18,13 @@ o = 1+d
 
 def func2():
     def func1():
-        a = 3
+        def my_new_function(a, b, c):
+            c =4
+            g = a+ 3
+            d = b +c + a+ 5
+            return g, d
         b = 4
-        c =4
-        g = a+ 3
-        d = b +c + a+ 5
-        f =11
+        g, d = my_new_function(a, b, c)
         o = g+d
         return 0
     a = 3

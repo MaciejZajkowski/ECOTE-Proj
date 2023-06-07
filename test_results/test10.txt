@@ -1,4 +1,6 @@
-
+def my_new_function():
+    g = 1+ 3
+    return g
 a = 3
 b = 4
 c =4
@@ -11,8 +13,7 @@ o = g+d
 a = 3
 b = 4
 c =4
-g = 1+ 3
-d = b +c + a+ 5
+g = my_new_function()
 f =11
 o = 1+d
 

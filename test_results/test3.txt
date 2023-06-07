@@ -4,14 +4,14 @@ d = 0
 def func1(a,b):
     c = a + b
     a = 3
-    def func2(a):
-        a = func2(a)
+    def my_new_func(a):
+        a = my_new_func(a)
         a = a*4
         return a
     a = 1
     d = 0
     b = 3 + d + a
-    func2(9)
+    my_new_func(9)
     c = 10
     d = 14 + b 
     return 0

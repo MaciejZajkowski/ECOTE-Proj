@@ -7,7 +7,7 @@ class Changer():
     def take_arguments_from_box(self,data,box):
         arg = []
         for i in range(box[0],box[1]):
-            n_args = [ self.find_argument2(data,x,i,data.iloc[i].functions) for x in data.iloc[i].arguments if not x.isnumeric() and "'" not in x and '"' not in x if x is not None]
+            n_args = [ self.find_argument(data,x,i,data.iloc[i].functions) for x in data.iloc[i].arguments if not x.isnumeric() and "'" not in x and '"' not in x if x is not None]
             arg = arg + n_args
         arg = [x for x in arg if x is not None]
         arg = pd.Series(arg).unique().tolist()
@@ -19,16 +19,9 @@ class Changer():
             n_args = [ self.find_argument(data,x,i,data.iloc[i].functions) for x in data.iloc[i].arguments if not x.isnumeric() and "'" not in x and '"' not in x]
             arg = arg + n_args
         return arg
-        
+
         
     def find_argument(self,data,argument,line_num, function):
-        #print(line_num)
-        _ = data.loc[(data.result == argument )& (data.functions == function)]
-        potential_lines = [x for x in _.index.to_list() if x < line_num]
-        potential_lines.sort()
-        #if len(potential_lines) == 0:
-        
-    def find_argument2(self,data,argument,line_num, function):
         _ = data.loc[(data.result == argument )& (data.functions == function)]
         potential_lines = [x for x in _.index.to_list() if x < line_num]
         potential_lines.sort()
@@ -52,13 +45,11 @@ class Changer():
         
     def rename_function(self,data,function_path,fname,name,i=0):
         index_of_occur = []
-        # #check if class
-        # class_flag = False
-        # temp = function_path +'.' + fname
         
         func = data.loc[(data['name'] == fname) & (data.kind =='def') & (data.functions == function_path)].iloc[i]
         index_of_occur = self.take_application_index(func,data)
         new_lines_of_text = {}
+        
         for i in data.index.to_list():
             if i in index_of_occur:
                 new_lines_of_text[i] = data.iloc[i].line_text.replace(fname,name)
@@ -101,7 +92,7 @@ class Changer():
             if data.iloc[i].arguments is not None:
                 for arg in data.iloc[i].arguments:
                     if not arg.isnumeric() and "'" not in arg and '"' not in arg:
-                        _ = self.find_argument2(data,arg,i,f)
+                        _ = self.find_argument(data,arg,i,f)
                         if _ is not None:
                             prereq = prereq + [_]
                         

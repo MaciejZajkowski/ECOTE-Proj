@@ -12,7 +12,7 @@ from classes.Refactoring_machine import Refactoring_machine
 def test1():
     #testing locating and renaming of function that has multiple definitions
     rm = Refactoring_machine()
-    return rm.change_name('../test_data/case1.py','../test_results/test1.txt','main','func2','my_new_func',1)
+    return rm.change_name('../test_data/case1.py','../test_results/test1.txt','main','func2','my_new_func',2)
 def test2():
     #testing locating and renaming of function that has one occurnace
     rm = Refactoring_machine()

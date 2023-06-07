@@ -1,11 +1,11 @@
-
-a = 3
-b = 4
-c =4
-g = a+ 3
-d = b +c + a+ 5
-f =11
-o = g+d
+def my_new_function(a, b, c):
+    a = 3
+    b = 4
+    c =4
+    g = a+ 3
+    d = b +c + a+ 5
+    f =11
+my_new_function(a, b, c)
 
 
 a = 3
